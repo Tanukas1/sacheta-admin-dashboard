@@ -6,6 +6,7 @@ import AddCategory from "./pages/WhatWe/AddCategory";
 import AddGallery from "./pages/AddGallery";
 import ViewGallery from "./pages/ViewGallery";
 import Awareness from "./pages/WhatWeDo/Awareness";
+import Donations from "./pages/DonationsEnquiry";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/gallery" element={<AddGallery />} />
         <Route path="/view-gallery" element={<ViewGallery />} />
         <Route path="/add-gallery" element={<Awareness />} />
+        <Route path="/donations" element={<Donations />} />
       </Routes>
     </>
   );

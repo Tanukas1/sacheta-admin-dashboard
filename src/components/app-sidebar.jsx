@@ -119,13 +119,13 @@ const data = {
       ],
     },
     {
-      title: "Settings",
+      title: "Enquiries",
       url: "#",
       icon: Settings2,
       items: [
         {
-          title: "General",
-          url: "#",
+          title: "Donations enquiry",
+          url: "/donations",
         },
         {
           title: "Team",
