@@ -3,9 +3,9 @@ import Sidebar from '../layout/Sidebar'
 
 function ViewGallery() {
   return (
-    <Sidebar>
+
        <div>ViewGallery</div>
-    </Sidebar>
+    
    
   )
 }
