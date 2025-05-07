@@ -6,7 +6,7 @@ import AddCategory from "./pages/WhatWe/AddCategory";
 import AddGallery from "./pages/AddGallery";
 import ViewGallery from "./pages/ViewGallery";
 import Awareness from "./pages/WhatWeDo/Awareness";
-import Donations from "./pages/DonationsEnquiry";
+import Donations from "./pages/Tables/DonationsEnquiry";
 
 function App() {
   return (
