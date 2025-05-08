@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
-import DataTable from "@/utils/DataTable";
+import axios from "axios";
+import { DataTable } from "../../utils/Datatable";
 import { Badge } from "@/components/ui/badge";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreVertical } from "lucide-react";
 import Sidebar from "../../layout/Sidebar";
-
 
 const VerifyDonations = () => {
   const [dashboardData, setDashboardData] = useState({
@@ -17,122 +22,110 @@ const VerifyDonations = () => {
   }, []);
 
   const fetchDashboardData = async () => {
-    // Mock data for demonstration
-    const mockDonations = [
-      {
-        _id: "don1",
-        name: "Amit Kumar",
-        phone: "9876543210",
-        email: "amit@example.com",
-        Birthdate: "1990-01-01",
-        citizenship: "Indian Citizen",
-        ["pan number"]: "ABCDE1234F",
-        address: "123 MG Road, New Delhi",
-        pincode: "110001",
-        city: "New Delhi",
-        state: "Delhi",
-        preferenceState: "Maharashtra",
-        donationType: "Once",
-        amount: 2500,
-        certificate: true,
-        createdAt: "2025-04-15T10:30:00Z",
-        status: "completed",
-      },
-      {
-        _id: "don2",
-        name: "Sarah Johnson",
-        phone: "8765432109",
-        email: "sarah@example.com",
-        Birthdate: "1985-07-20",
-        citizenship: "Foreign National",
-        ["pan number"]: "XYZWE5678K",
-        address: "45 Ocean Drive, Miami",
-        pincode: "33101",
-        city: "Miami",
-        state: "Florida",
-        preferenceState: "California",
-        donationType: "Monthly",
-        amount: 5000,
-        certificate: true,
-        createdAt: "2025-05-01T14:45:00Z",
-        status: "processing",
-      },
-    ];
-    
-
-    setDashboardData({
-      donations: mockDonations,
-    });
+    try {
+      const response = await axios.get("http://sucheta.traficoanalytica.com/api/v1/enquiry/get-verify-donations"); // Replace with actual endpoint
+      if (response.data?.success) {
+        setDashboardData({
+          donations: response.data.data,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching donations:", error);
+    }
   };
-
-  const columns = [
-    {
-      accessorKey: "name",
-      header: "Name",
-      cell: (info) => info.getValue(),
-    },
-    {
-      accessorKey: "phone",
-      header: "Mobile",
-      cell: (info) => info.getValue(),
-    },
-    {
-      accessorKey: "email",
-      header: "Email",
-      cell: (info) => info.getValue(),
-    },
-  {
-      accessorKey: "Donation amount",
-      header: "Donation Amount",
-      cell: (info) => info.getValue(),
-    },
-    {
-      accessorKey: "Donation screenshot",
-      header: "Donation Screenshot",
-      cell: (info) => info.getValue(),
-    },
-
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => handleStatusChange(row.original._id, "processing")}>
-              Mark as Processing
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleStatusChange(row.original._id, "completed")}>
-              Mark as Completed
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleStatusChange(row.original._id, "failed")}>
-              Mark as Failed
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
-    },
-  ];
 
   const handleStatusChange = (id, newStatus) => {
     setDashboardData(prev => ({
       ...prev,
-      donations: prev.donations.map(donation => 
+      donations: prev.donations.map(donation =>
         donation._id === id ? { ...donation, status: newStatus } : donation
-      )
+      ),
     }));
   };
 
+  const handleDeleteDonation = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this donation?"
+    );
+    if (!confirmDelete) return;
+
+    console.log(`Attempting to delete donation with ID: ${id}`);
+    try {
+      await axios.post(
+        `http://sucheta.traficoanalytica.com/api/v1/enquiry//delete-verify-donation`,
+        { id }
+      );
+      setDashboardData(prev => ({
+        ...prev,
+        donations: prev.donations.filter(donation => donation._id !== id),
+      }));
+      console.log(`Donation ${id} deleted successfully`);
+    } catch (err) {
+      console.error(`Failed to delete donation ${id}:`, err);
+      alert("Failed to delete donation. Please try again.");
+    }
+  };
+
+  const columns = [
+    {
+      accessorKey: "firstName",
+      header: "Name",
+      cell: info => info.getValue(),
+    },
+    {
+      accessorKey: "contactNumber",
+      header: "Mobile",
+      cell: info => info.getValue(),
+    },
+    {
+      accessorKey: "email",
+      header: "Email",
+      cell: info => info.getValue(),
+    },
+    {
+      accessorKey: "donationAmount",
+      header: "Donation Amount",
+      cell: info => `₹${info.getValue()}`,
+    },
+    {
+      accessorKey: "donationScreenshot",
+      header: "Donation Screenshot",
+      cell: info => {
+        const path = info.getValue(); // e.g., "public/temp/..."
+        const imagePath = path.replace("public/", "/"); // gives "/temp/..."
+        return (
+          <a href={imagePath} target="_blank" rel="noopener noreferrer">
+            <img
+              src={imagePath}
+              alt="Donation Screenshot"
+              className="w-16 h-16 object-cover rounded border"
+            />
+          </a>
+        );
+      },
+    },
+    
+    {
+             id: "actions",
+             header: "Actions",
+             cell: ({ row }) => (
+               <Button
+                 variant="destructive"
+                 size="sm"
+                 onClick={() => handleDeleteDonation(row.original._id)}
+               >
+                 Delete
+               </Button>
+             ),
+           },
+  ];
+
   return (
     <Sidebar>
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Donations</h1>
-      <DataTable columns={columns} data={dashboardData.donations} />
-    </div>
+      <div className="p-6">
+        <h1 className="text-2xl font-bold mb-4">Donations</h1>
+        <DataTable columns={columns} data={dashboardData.donations} />
+      </div>
     </Sidebar>
   );
 };

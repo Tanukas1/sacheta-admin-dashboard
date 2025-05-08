@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from "react";
-import DataTable from "@/utils/DataTable";
+import { DataTable } from "../../utils/Datatable";
 import { Badge } from "@/components/ui/badge";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreVertical } from "lucide-react";
 import Sidebar from "../../layout/Sidebar";
+import axios from "axios";
 
 const Ocassional = () => {
   const [dashboardData, setDashboardData] = useState({
@@ -16,106 +22,96 @@ const Ocassional = () => {
   }, []);
 
   const fetchDashboardData = async () => {
-    // Mock data for demonstration
-    const mockDonations = [
-      {
-        _id: "don1",
-        name: "Amit Kumar",
-        phone: "9876543210",
-        email: "amit@example.com",
-        Birthdate: "1990-01-01",
-        citizenship: "Indian Citizen",
-        ["pan number"]: "ABCDE1234F",
-        address: "123 MG Road, New Delhi",
-        pincode: "110001",
-        city: "New Delhi",
-        state: "Delhi",
-        preferenceState: "Maharashtra",
-        donationType: "Once",
-        amount: 2500,
-        certificate: true,
-        createdAt: "2025-04-15T10:30:00Z",
-        status: "completed",
-      },
-      {
-        _id: "don2",
-        name: "Sarah Johnson",
-        phone: "8765432109",
-        email: "sarah@example.com",
-        Birthdate: "1985-07-20",
-        citizenship: "Foreign National",
-        ["pan number"]: "XYZWE5678K",
-        address: "45 Ocean Drive, Miami",
-        pincode: "33101",
-        city: "Miami",
-        state: "Florida",
-        preferenceState: "California",
-        donationType: "Monthly",
-        amount: 5000,
-        certificate: true,
-        createdAt: "2025-05-01T14:45:00Z",
-        status: "processing",
-      },
-    ];
-    
+    try {
+      const res = await fetch("http://sucheta.traficoanalytica.com/api/v1/enquiry/get-special-occasion-donations");
+      const result = await res.json();
+      if (result.success) {
+        setDashboardData({ donations: result.data });
+      } else {
+        console.error("Failed to fetch donations:", result.message);
+      }
+    } catch (error) {
+      console.error("Error fetching donations:", error);
+    }
+  };
+  
+  const handleDeleteDonation = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this donation?"
+    );
+    if (!confirmDelete) return;
 
-    setDashboardData({
-      donations: mockDonations,
-    });
+    console.log(`Attempting to delete donation with ID: ${id}`);
+    try {
+
+      await axios.post(
+        `http://sucheta.traficoanalytica.com/api/v1/enquiry//delete-special-occasion-donation`,
+        { id }
+      );
+
+
+      setDashboardData(prev => ({
+        ...prev,
+        donations: prev.donations.filter(donation => donation._id !== id)
+      }));
+      
+      console.log(`Donation ${id} deleted successfully`);
+    } catch (err) {
+      console.error(`Failed to delete donation ${id}:`, err);
+      alert("Failed to delete donation. Please try again.");
+    }
+  };
+
+  const handleStatusChange = (id, newStatus) => {
+    setDashboardData(prev => ({
+      ...prev,
+      donations: prev.donations.map(donation =>
+        donation._id === id ? { ...donation, status: newStatus } : donation
+      ),
+    }));
   };
 
   const columns = [
     {
-        accessorKey: "occasion date",
-        header: "Occasion Date",
-      },
-      {
-        accessorKey: "occasion name",
-        header: "Occasion Name",
-      },
-      {
-        accessorKey: "honoree name",
-        header: "Honoree Name",
-      },
-      {
-          accessorKey: "relation",
-          header: "Relation",
-      },
-      {
-          accessorKey: "honoree email",
-          header: "Honoree Email",
-      },
-      {
-          accessorKey: "honoree phone",
-          header: "Honoree Phone",
-      },
-    {
-      accessorKey: "name",
-      header: "Name",
-      cell: (info) => info.getValue(),
+      accessorKey: "occasionDate",
+      header: "Occasion Date",
+      cell: (info) => new Date(info.getValue()).toLocaleDateString(),
     },
     {
-      accessorKey: "phone",
-      header: "Mobile",
-      cell: (info) => info.getValue(),
+      accessorKey: "occasionName",
+      header: "Occasion Name",
+    },
+    {
+      accessorKey: "honoreeName",
+      header: "Honoree Name",
+    },
+    {
+      accessorKey: "relationshipWithHonoree",
+      header: "Relation",
     },
     {
       accessorKey: "email",
       header: "Email",
-      cell: (info) => info.getValue(),
     },
     {
-      accessorKey: "Birthdate",
+      accessorKey: "mobileNumber",
+      header: "Mobile",
+    },
+    {
+      accessorKey: "fullName",
+      header: "Name",
+    },
+    {
+      accessorKey: "birthdate",
       header: "Birthdate",
-      cell: (info) => info.getValue(),
+      cell: (info) => new Date(info.getValue()).toLocaleDateString(),
     },
     {
       accessorKey: "citizenship",
       header: "Citizenship",
-      cell: (info) => info.getValue(),
     },
     {
-      accessorKey: "certificate",
+      accessorKey: "wants80GCertificate",
       header: "Certificate",
       cell: (info) => (
         <Badge className={info.getValue() ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
@@ -129,91 +125,27 @@ const Ocassional = () => {
       cell: (info) => new Date(info.getValue()).toLocaleDateString(),
     },
     {
-      accessorKey: "pan number",
-      header: "PAN Number",
-      cell: (info) => info.getValue(),
-    },
-    {
-      accessorKey : "address",
-      header: "Address",
-      cell: (info) => info.getValue(),
-
-    },
-    {
-      accessorKey: "pincode",
-      header: "Pincode",
-      cell: (info) => info.getValue(),
-    },
-    {
-      accessorKey: "city",
-      header: "City",
-      cell: (info) => info.getValue(),
-    },
-    {
-      accessorKey: "state",
-      header: "State",
-      cell: (info) => info.getValue(),
-    },
-    {
-      accessorKey: "preferenceState",
-      header: "Preference State",
-      cell: (info) => info.getValue(),
-    },
-
-  
-    {
       accessorKey: "donationType",
       header: "Donation Type",
     },
     {
-      accessorKey: "amount",
-      header: "Amount",
-      cell: (info) => `₹${info.getValue()}`,
+      accessorKey: "_id",
+      header: "Donation ID",
     },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: (info) => (
-        <Badge className={info.getValue() === "completed" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}>
-          {info.getValue()}
-        </Badge>
-      ),
-    },
-
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => handleStatusChange(row.original._id, "processing")}>
-              Mark as Processing
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleStatusChange(row.original._id, "completed")}>
-              Mark as Completed
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleStatusChange(row.original._id, "failed")}>
-              Mark as Failed
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
-    },
+   {
+            id: "actions",
+            header: "Actions",
+            cell: ({ row }) => (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => handleDeleteDonation(row.original._id)}
+              >
+                Delete
+              </Button>
+            ),
+          },
   ];
-
-  const handleStatusChange = (id, newStatus) => {
-    setDashboardData(prev => ({
-      ...prev,
-      donations: prev.donations.map(donation => 
-        donation._id === id ? { ...donation, status: newStatus } : donation
-      )
-    }));
-  };
 
   return (
     <Sidebar>
