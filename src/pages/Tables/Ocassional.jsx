@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreVertical } from "lucide-react";
+import Sidebar from "../../layout/Sidebar";
 
 const Ocassional = () => {
   const [dashboardData, setDashboardData] = useState({
@@ -215,10 +216,12 @@ const Ocassional = () => {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Donations</h1>
-      <DataTable columns={columns} data={dashboardData.donations} />
-    </div>
+    <Sidebar>
+      <div className="p-6">
+        <h1 className="text-2xl font-bold mb-4">Donations</h1>
+        <DataTable columns={columns} data={dashboardData.donations} />
+      </div>
+    </Sidebar>
   );
 };
 

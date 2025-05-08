@@ -48,7 +48,40 @@ const data = {
       plan: "Free",
     },
   ],
+  
   navMain: [
+    {
+      title: "Enquiries",
+      url: "#",
+      icon: Settings2,
+      items: [
+        {
+          title: "Donations Enquiry",
+          url: "/donations",
+        },
+        {
+          title: "Verify Donation Enquiry",
+          url: "/verify-donations",
+        },
+        {
+          title: "Sponsor a School Enquiry",
+          url: "/sponser",
+        },
+        {
+          title: "Occasional Enquiry",
+          url: "/ocassional",
+        },
+        {
+          title: "Donate in Honor Enquiry",
+          url: "/honor",
+        },
+        {
+          title: "Donate in Memory Enquiry",
+          url: "/memory",
+        },
+        
+      ],
+    },
     {
       title: "What we do",
       url: "#",
@@ -118,29 +151,7 @@ const data = {
         },
       ],
     },
-    {
-      title: "Enquiries",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "Donations enquiry",
-          url: "/donations",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
-    },
+   
   ],
   projects: [
     {
