@@ -53,7 +53,8 @@ const data = {
     {
       title: "Enquiries",
       url: "#",
-      icon: Settings2,
+      icon: SquareTerminal,
+      isActive: true,
       items: [
         {
           title: "Donations Enquiry",
@@ -82,6 +83,7 @@ const data = {
         
       ],
     },
+    
     {
       title: "What we do",
       url: "#",
