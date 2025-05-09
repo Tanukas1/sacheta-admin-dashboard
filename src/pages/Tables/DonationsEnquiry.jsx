@@ -68,6 +68,7 @@ const Donations = () => {
     { accessorKey: "email", header: "Email" },
     { accessorKey: "birthdate", header: "Birthdate" },
     { accessorKey: "citizenship", header: "Citizenship" },
+    { accessorKey: "donationType", header: "Donation Type" },
     {
       accessorKey: "createdAt",
       header: "Created At",
@@ -76,9 +77,9 @@ const Donations = () => {
         return value ? new Date(value).toLocaleDateString() : "";
       },
     },
-    { accessorKey: "panNumber", header: "PAN Number" },
-    { accessorKey: "address", header: "Address" },
-    { accessorKey: "pinCode", header: "Pincode" },
+    // { accessorKey: "panNumber", header: "PAN Number" },
+    // { accessorKey: "address", header: "Address" },
+    // { accessorKey: "pinCode", header: "Pincode" },
 
     // Certificate Fields
     {

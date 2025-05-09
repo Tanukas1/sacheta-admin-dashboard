@@ -127,10 +127,11 @@ const Sponser = () => {
           : "",
     },
     {
-      accessorKey: "amount",
-      header: "Amount",
+      accessorKey: "certificateDetails.preferenceState",
+      header: "Preference State",
+    
       cell: (info) =>
-        info.getValue() ? `₹${info.getValue()}` : "Not Specified",
+        info.getValue() ? `${info.getValue()}` : "Not Specified",
     },
     {
       accessorKey: "status",

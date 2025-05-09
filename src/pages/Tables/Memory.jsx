@@ -11,7 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { MoreVertical } from "lucide-react";
 import Sidebar from "../../layout/Sidebar";
-
 const Memory = () => {
   const [dashboardData, setDashboardData] = useState({
     donations: [],
@@ -129,6 +128,53 @@ const Memory = () => {
       accessorKey: "createdAt",
       header: "Created At",
       cell: info => info.getValue() ? new Date(info.getValue()).toLocaleDateString() : "-",
+    },
+    {
+      accessorKey: "certificateDetails.panCardNumber",
+      header: "Certificate PAN",
+      cell: ({ row }) =>
+        row.original.wants80GCertificate
+          ? row.original.certificateDetails?.panCardNumber || ""
+          : "",
+    },
+    {
+      accessorKey: "certificateDetails.certificateAddress",
+      header: "Certificate Address",
+      cell: ({ row }) =>
+        row.original.wants80GCertificate
+          ? row.original.certificateDetails?.certificateAddress || ""
+          : "",
+    },
+    {
+      accessorKey: "certificateDetails.certificatePinCode",
+      header: "Certificate Pincode",
+      cell: ({ row }) =>
+        row.original.wants80GCertificate
+          ? row.original.certificateDetails?.certificatePinCode || ""
+          : "",
+    },
+    {
+      accessorKey: "certificateDetails.certificateCity",
+      header: "Certificate City",
+      cell: ({ row }) =>
+        row.original.wants80GCertificate
+          ? row.original.certificateDetails?.certificateCity || ""
+          : "",
+    },
+    {
+      accessorKey: "certificateDetails.certificateState",
+      header: "Certificate State",
+      cell: ({ row }) =>
+        row.original.wants80GCertificate
+          ? row.original.certificateDetails?.certificateState || ""
+          : "",
+    },
+    {
+      accessorKey: "certificateDetails.preferenceState",
+      header: "Preference State",
+    
+      cell: (info) =>
+        info.getValue() ? `${info.getValue()}` : "Not Specified",
     },
      {
           id: "actions",

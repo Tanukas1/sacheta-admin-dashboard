@@ -46,7 +46,7 @@ export function DataTable({ columns, data }) {
 
   return (
     <div>
-      <div className="flex items-center py-4">
+      <div className="flex items-center ">
         <Input
           placeholder="Filter titles..."
           value={table.getColumn("title")?.getFilterValue() ?? ""}

@@ -23,7 +23,9 @@ const VerifyDonations = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await axios.get("http://sucheta.traficoanalytica.com/api/v1/enquiry/get-verify-donations"); // Replace with actual endpoint
+      const response = await axios.get(
+        "http://sucheta.traficoanalytica.com/api/v1/enquiry/get-verify-donations"
+      ); // Replace with actual endpoint
       if (response.data?.success) {
         setDashboardData({
           donations: response.data.data,
@@ -35,9 +37,9 @@ const VerifyDonations = () => {
   };
 
   const handleStatusChange = (id, newStatus) => {
-    setDashboardData(prev => ({
+    setDashboardData((prev) => ({
       ...prev,
-      donations: prev.donations.map(donation =>
+      donations: prev.donations.map((donation) =>
         donation._id === id ? { ...donation, status: newStatus } : donation
       ),
     }));
@@ -52,12 +54,12 @@ const VerifyDonations = () => {
     console.log(`Attempting to delete donation with ID: ${id}`);
     try {
       await axios.post(
-        `http://sucheta.traficoanalytica.com/api/v1/enquiry//delete-verify-donation`,
+        `http://sucheta.traficoanalytica.com/api/v1/enquiry/delete-verify-donation`,
         { id }
       );
-      setDashboardData(prev => ({
+      setDashboardData((prev) => ({
         ...prev,
-        donations: prev.donations.filter(donation => donation._id !== id),
+        donations: prev.donations.filter((donation) => donation._id !== id),
       }));
       console.log(`Donation ${id} deleted successfully`);
     } catch (err) {
@@ -70,33 +72,34 @@ const VerifyDonations = () => {
     {
       accessorKey: "firstName",
       header: "Name",
-      cell: info => info.getValue(),
+      cell: (info) => info.getValue(),
     },
     {
       accessorKey: "contactNumber",
       header: "Mobile",
-      cell: info => info.getValue(),
+      cell: (info) => info.getValue(),
     },
     {
       accessorKey: "email",
       header: "Email",
-      cell: info => info.getValue(),
+      cell: (info) => info.getValue(),
     },
     {
       accessorKey: "donationAmount",
       header: "Donation Amount",
-      cell: info => `₹${info.getValue()}`,
+      cell: (info) => `₹${info.getValue()}`,
     },
     {
       accessorKey: "donationScreenshot",
       header: "Donation Screenshot",
-      cell: info => {
+      cell: (info) => {
         const path = info.getValue(); // e.g., "public/temp/..."
-        const imagePath = path.replace("public/", "/"); // gives "/temp/..."
+        const relativePath = path.replace("public/", "/"); // gives "/temp/..."
+        const fullPath = `http://sucheta.traficoanalytica.com${relativePath}`;
         return (
-          <a href={imagePath} target="_blank" rel="noopener noreferrer">
+          <a href={fullPath} target="_blank" rel="noopener noreferrer">
             <img
-              src={imagePath}
+              src={fullPath}
               alt="Donation Screenshot"
               className="w-16 h-16 object-cover rounded border"
             />
@@ -104,20 +107,20 @@ const VerifyDonations = () => {
         );
       },
     },
-    
+
     {
-             id: "actions",
-             header: "Actions",
-             cell: ({ row }) => (
-               <Button
-                 variant="destructive"
-                 size="sm"
-                 onClick={() => handleDeleteDonation(row.original._id)}
-               >
-                 Delete
-               </Button>
-             ),
-           },
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={() => handleDeleteDonation(row.original._id)}
+        >
+          Delete
+        </Button>
+      ),
+    },
   ];
 
   return (

@@ -77,9 +77,20 @@ const Honor = () => {
         return value ? new Date(value).toLocaleDateString() : "";
       },
     },
-    { accessorKey: "panNumber", header: "PAN Number" },
-    { accessorKey: "address", header: "Address" },
-    { accessorKey: "pinCode", header: "Pincode" },
+    // { accessorKey: "panNumber", header: "PAN Number" },
+    // { accessorKey: "address", header: "Address" },
+    // { accessorKey: "pinCode", header: "Pincode" },
+
+    { accessorKey: "occasionDate", header: "Occasion Date" },
+    { accessorKey: "occasionName", header: "Occasion Name" },
+    { accessorKey: "honoreeName", header: "Honoree Name" },
+    { accessorKey: "donationType", header: "Donation Type" },
+    { accessorKey: "relationshipWithHonoree", header: "Relation" },
+    { accessorKey: "honoreeEmail", header: "Honoree Email" },
+    { accessorKey: "honoreeMobile", header: "Honoree Mobile" },
+    
+
+  
 
     // Certificate Fields
     {
