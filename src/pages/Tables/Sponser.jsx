@@ -22,7 +22,7 @@ const Sponser = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch("http://sucheta.traficoanalytica.com/api/v1/enquiry/get-in-sponsor-donations"); // Replace with your actual endpoint
+      const response = await fetch("https://sucheta.traficoanalytica.com/api/v1/enquiry/get-in-sponsor-donations"); // Replace with your actual endpoint
       const result = await response.json();
       if (result.success) {
         setDonations(result.data);
@@ -44,7 +44,7 @@ const Sponser = () => {
     try {
       // Using POST method and sending ID in the request body
       await axios.post(
-        `http://sucheta.traficoanalytica.com/api/v1/enquiry/delete-in-sponsor-donation`,
+        `https://sucheta.traficoanalytica.com/api/v1/enquiry/delete-in-sponsor-donation`,
         { id }
       );
   

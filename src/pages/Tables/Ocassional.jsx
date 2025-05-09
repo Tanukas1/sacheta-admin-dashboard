@@ -23,7 +23,7 @@ const Ocassional = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const res = await fetch("http://sucheta.traficoanalytica.com/api/v1/enquiry/get-special-occasion-donations");
+      const res = await fetch("https://sucheta.traficoanalytica.com/api/v1/enquiry/get-special-occasion-donations");
       const result = await res.json();
       if (result.success) {
         setDashboardData({ donations: result.data });
@@ -45,7 +45,7 @@ const Ocassional = () => {
     try {
 
       await axios.post(
-        `http://sucheta.traficoanalytica.com/api/v1/enquiry//delete-special-occasion-donation`,
+        `https://sucheta.traficoanalytica.com/api/v1/enquiry//delete-special-occasion-donation`,
         { id }
       );
 

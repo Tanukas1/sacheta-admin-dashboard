@@ -22,7 +22,7 @@ const Memory = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch("http://sucheta.traficoanalytica.com/api/v1/enquiry/get-in-memory-donations");
+      const response = await fetch("https://sucheta.traficoanalytica.com/api/v1/enquiry/get-in-memory-donations");
       const result = await response.json();
       if (result?.statusCode === 200 && Array.isArray(result.data)) {
         setDashboardData({ donations: result.data });
@@ -51,7 +51,7 @@ const Memory = () => {
     try {
       // Using POST method and sending ID in the request body
       await axios.post(
-        `http://sucheta.traficoanalytica.com/api/v1/enquiry/delete-in-memory-donation`,
+        `https://sucheta.traficoanalytica.com/api/v1/enquiry/delete-in-memory-donation`,
         { id }
       );
 

@@ -24,7 +24,7 @@ const VerifyDonations = () => {
   const fetchDashboardData = async () => {
     try {
       const response = await axios.get(
-        "http://sucheta.traficoanalytica.com/api/v1/enquiry/get-verify-donations"
+        "https://sucheta.traficoanalytica.com/api/v1/enquiry/get-verify-donations"
       ); // Replace with actual endpoint
       if (response.data?.success) {
         setDashboardData({
@@ -54,7 +54,7 @@ const VerifyDonations = () => {
     console.log(`Attempting to delete donation with ID: ${id}`);
     try {
       await axios.post(
-        `http://sucheta.traficoanalytica.com/api/v1/enquiry/delete-verify-donation`,
+        `https://sucheta.traficoanalytica.com/api/v1/enquiry/delete-verify-donation`,
         { id }
       );
       setDashboardData((prev) => ({
@@ -95,7 +95,7 @@ const VerifyDonations = () => {
       cell: (info) => {
         const path = info.getValue(); // e.g., "public/temp/..."
         const relativePath = path.replace("public/", "/"); // gives "/temp/..."
-        const fullPath = `http://sucheta.traficoanalytica.com${relativePath}`;
+        const fullPath = `https://sucheta.traficoanalytica.com${relativePath}`;
         return (
           <a href={fullPath} target="_blank" rel="noopener noreferrer">
             <img

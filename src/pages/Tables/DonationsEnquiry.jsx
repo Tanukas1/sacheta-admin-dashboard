@@ -19,7 +19,7 @@ const Donations = () => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        "http://sucheta.traficoanalytica.com/api/v1/enquiry/get-dedicate-donations"
+        "https://sucheta.traficoanalytica.com/api/v1/enquiry/get-dedicate-donations"
       );
 
       const donationData = response?.data?.data;
@@ -43,7 +43,7 @@ const Donations = () => {
     console.log(`Attempting to delete donation with ID: ${id}`);
     try {
       await axios.post(
-        `http://sucheta.traficoanalytica.com/api/v1/enquiry/delete-dedicate-donation`,
+        `https://sucheta.traficoanalytica.com/api/v1/enquiry/delete-dedicate-donation`,
         { id } 
       );
   

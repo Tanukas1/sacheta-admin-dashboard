@@ -84,75 +84,7 @@ const data = {
       ],
     },
     
-    {
-      title: "What we do",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "Add Category",
-          url: "/add-category",
-        },
-        
-      ],
-    },
-
-    {
-      title: "What we do",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "Add Gallery",
-          url: "add-gallery",
-        },
-      ],
-    },
-    {
-      title: "Gallery",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Add Gallery ",
-          url: "/add-gallery",
-        },
-        {
-          title: "View Gallery",
-          url: "/view-gallery",
-        },
-       
-      ],
-    },
-    {
-      title: "How To Help",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Fundraise With Us",
-          url: "#",
-        },
-        {
-          title: "Sponsor a School",
-          url: "#",
-        },
-        {
-          title: "Occasional",
-          url: "#",
-        },
-        {
-          title: "Donate in Honor",
-          url: "#",
-        },
-        {
-          title: "Donate in Memory",
-          url: "#",
-        },
-      ],
-    },
+    
    
   ],
   projects: [
@@ -184,11 +116,11 @@ export function AppSidebar({
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
-      <SidebarFooter>
+      {/* <SidebarFooter>
         <NavUser user={data.user} />
-      </SidebarFooter>
+      </SidebarFooter> */}
       <SidebarRail />
     </Sidebar>
   );

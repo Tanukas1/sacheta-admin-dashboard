@@ -18,7 +18,7 @@ const Honor = () => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        "http://sucheta.traficoanalytica.com/api/v1/enquiry/get-in-honour-donations"
+        "https://sucheta.traficoanalytica.com/api/v1/enquiry/get-in-honour-donations"
       );
 
       const donationData = response?.data?.data;
@@ -44,7 +44,7 @@ const Honor = () => {
     try {
       // Using POST instead of DELETE and sending ID in the request body
       await axios.post(
-        `http://sucheta.traficoanalytica.com/api/v1/enquiry/delete-in-honour-donation`,
+        `https://sucheta.traficoanalytica.com/api/v1/enquiry/delete-in-honour-donation`,
         { id }
       );
 
