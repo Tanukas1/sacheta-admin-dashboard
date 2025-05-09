@@ -1,201 +1,256 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { DataTable } from "../../utils/Datatable";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreVertical } from "lucide-react";
 import Sidebar from "../../layout/Sidebar";
+import { DataTable } from "../../utils/Datatable";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+
 const Memory = () => {
   const [dashboardData, setDashboardData] = useState({
     donations: [],
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const [selectedDonation, setSelectedDonation] = useState(null);
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
   const fetchDashboardData = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch("https://sucheta.traficoanalytica.com/api/v1/enquiry/get-in-memory-donations");
       const result = await response.json();
       if (result?.statusCode === 200 && Array.isArray(result.data)) {
         setDashboardData({ donations: result.data });
+      } else {
+        throw new Error("Failed to fetch donations");
       }
     } catch (error) {
-      console.error("Error fetching donations:", error);
+      setError("Error fetching donations");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleStatusChange = (id, newStatus) => {
-    setDashboardData(prev => ({
-      ...prev,
-      donations: prev.donations.map(donation =>
-        donation._id === id ? { ...donation, status: newStatus } : donation
-      ),
-    }));
-  };
-
-  const handleDeleteDonation = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this donation?"
-    );
-    if (!confirmDelete) return;
-
-    console.log(`Attempting to delete donation with ID: ${id}`);
+  const handleDeleteDonation = async () => {
     try {
-      // Using POST method and sending ID in the request body
       await axios.post(
         `https://sucheta.traficoanalytica.com/api/v1/enquiry/delete-in-memory-donation`,
-        { id }
+        { id: deleteId }
       );
-
-      // Update state to remove the deleted donation
       setDashboardData(prev => ({
         ...prev,
-        donations: prev.donations.filter(donation => donation._id !== id)
+        donations: prev.donations.filter(donation => donation._id !== deleteId)
       }));
-      
-      console.log(`Donation ${id} deleted successfully`);
+      setShowDeleteConfirm(false);
+      setDeleteId(null);
     } catch (err) {
-      console.error(`Failed to delete donation ${id}:`, err);
+      console.error(`Failed to delete donation ${deleteId}:`, err);
       alert("Failed to delete donation. Please try again.");
     }
   };
 
   const columns = [
+    { accessorKey: "fullName", header: "Name" },
+    { accessorKey: "email", header: "Email" },
+    { accessorKey: "mobileNumber", header: "Mobile" },
+    { accessorKey: "honoreeName", header: "Honoree Name" },
+    { accessorKey: "occasionName", header: "Occasion Name" },
+    { accessorKey: "relationshipWithHonoree", header: "Relationship" },
     {
-      accessorKey: "fullName",
-      header: "Name",
-    },
-    {
-      accessorKey: "mobileNumber",
-      header: "Mobile",
-    },
-    {
-      accessorKey: "alternateMobileNumber",
-      header: "Alternate Mobile",
-    },
-    {
-      accessorKey: "email",
-      header: "Email",
-    },
-    {
-      accessorKey: "birthdate",
-      header: "Birthdate",
-      cell: info => info.getValue() ? new Date(info.getValue()).toLocaleDateString() : "-",
-    },
-    {
-      accessorKey: "citizenship",
-      header: "Citizenship",
-    },
-    {
-      accessorKey: "wants80GCertificate",
-      header: "80G Certificate",
-      cell: info => (
-        <Badge className={info.getValue() ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
-          {info.getValue() ? "Yes" : "No"}
-        </Badge>
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSelectedDonation(row.original)}
+          >
+            View
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => {
+              setDeleteId(row.original._id);
+              setShowDeleteConfirm(true);
+            }}
+          >
+            Delete
+          </Button>
+        </div>
       ),
     },
-    {
-      accessorKey: "donationType",
-      header: "Donation Type",
-    },
-    {
-      accessorKey: "honoreeName",
-      header: "Honoree",
-    },
-    {
-      accessorKey: "relationshipWithHonoree",
-      header: "Relationship",
-    },
-    {
-      accessorKey: "occasionName",
-      header: "Occasion",
-    },
-    {
-      accessorKey: "occasionDate",
-      header: "Occasion Date",
-      cell: info => info.getValue() ? new Date(info.getValue()).toLocaleDateString() : "-",
-    },
-    {
-      accessorKey: "createdAt",
-      header: "Created At",
-      cell: info => info.getValue() ? new Date(info.getValue()).toLocaleDateString() : "-",
-    },
-    {
-      accessorKey: "certificateDetails.panCardNumber",
-      header: "Certificate PAN",
-      cell: ({ row }) =>
-        row.original.wants80GCertificate
-          ? row.original.certificateDetails?.panCardNumber || ""
-          : "",
-    },
-    {
-      accessorKey: "certificateDetails.certificateAddress",
-      header: "Certificate Address",
-      cell: ({ row }) =>
-        row.original.wants80GCertificate
-          ? row.original.certificateDetails?.certificateAddress || ""
-          : "",
-    },
-    {
-      accessorKey: "certificateDetails.certificatePinCode",
-      header: "Certificate Pincode",
-      cell: ({ row }) =>
-        row.original.wants80GCertificate
-          ? row.original.certificateDetails?.certificatePinCode || ""
-          : "",
-    },
-    {
-      accessorKey: "certificateDetails.certificateCity",
-      header: "Certificate City",
-      cell: ({ row }) =>
-        row.original.wants80GCertificate
-          ? row.original.certificateDetails?.certificateCity || ""
-          : "",
-    },
-    {
-      accessorKey: "certificateDetails.certificateState",
-      header: "Certificate State",
-      cell: ({ row }) =>
-        row.original.wants80GCertificate
-          ? row.original.certificateDetails?.certificateState || ""
-          : "",
-    },
-    {
-      accessorKey: "certificateDetails.preferenceState",
-      header: "Preference State",
-    
-      cell: (info) =>
-        info.getValue() ? `${info.getValue()}` : "Not Specified",
-    },
-     {
-          id: "actions",
-          header: "Actions",
-          cell: ({ row }) => (
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => handleDeleteDonation(row.original._id)}
-            >
-              Delete
-            </Button>
-          ),
-        },
   ];
 
   return (
     <Sidebar>
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">In-Memory Donations</h1>
-        <DataTable columns={columns} data={dashboardData.donations} />
+        {error ? (
+          <>
+            <p className="text-red-500">Error: {error}</p>
+            <Button onClick={fetchDashboardData} className="mt-2">
+              Retry
+            </Button>
+          </>
+        ) : isLoading ? (
+          <p>Loading...</p>
+        ) : dashboardData.donations.length === 0 ? (
+          <p>No donations found.</p>
+        ) : (
+          <DataTable columns={columns} data={dashboardData.donations} />
+        )}
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Deletion</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete this donation? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteConfirm(false)}
+              >
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleDeleteDonation}>
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* View Donation Details Modal */}
+        <Dialog
+          open={!!selectedDonation}
+          onOpenChange={() => setSelectedDonation(null)}
+        >
+          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">Donation Details</DialogTitle>
+            </DialogHeader>
+            {selectedDonation && (
+              <div className="space-y-6">
+                <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                  <h3 className="text-lg font-semibold mb-3">Personal Information</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <p>
+                      <strong>Name:</strong> {selectedDonation.fullName}
+                    </p>
+                    <p>
+                      <strong>Email:</strong> {selectedDonation.email}
+                    </p>
+                    <p>
+                      <strong>Mobile:</strong> {selectedDonation.mobileNumber}
+                    </p>
+                    <p>
+                      <strong>Alternate Mobile:</strong>{" "}
+                      {selectedDonation.alternateMobileNumber || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Birthdate:</strong>{" "}
+                      {selectedDonation.birthdate
+                        ? new Date(selectedDonation.birthdate).toLocaleDateString()
+                        : "N/A"}
+                    </p>
+                    <p>
+                      <strong>Citizenship:</strong> {selectedDonation.citizenship || "N/A"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                  <h3 className="text-lg font-semibold mb-3">Donation Information</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <p>
+                      <strong>Honoree Name:</strong> {selectedDonation.honoreeName || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Relationship:</strong>{" "}
+                      {selectedDonation.relationshipWithHonoree || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Occasion Name:</strong> {selectedDonation.occasionName || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Occasion Date:</strong>{" "}
+                      {selectedDonation.occasionDate
+                        ? new Date(selectedDonation.occasionDate).toLocaleDateString()
+                        : "N/A"}
+                    </p>
+                    <p>
+                      <strong>Donation Type:</strong> {selectedDonation.donationType || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Created At:</strong>{" "}
+                      {selectedDonation.createdAt
+                        ? new Date(selectedDonation.createdAt).toLocaleDateString()
+                        : "N/A"}
+                    </p>
+                  </div>
+                </div>
+
+                {selectedDonation.wants80GCertificate && (
+                  <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <h3 className="text-lg font-semibold mb-3">Certificate Details</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <p>
+                        <strong>PAN Number:</strong>{" "}
+                        {selectedDonation.certificateDetails?.panCardNumber || "N/A"}
+                      </p>
+                      <p>
+                        <strong>Address:</strong>{" "}
+                        {selectedDonation.certificateDetails?.certificateAddress || "N/A"}
+                      </p>
+                      <p>
+                        <strong>Pincode:</strong>{" "}
+                        {selectedDonation.certificateDetails?.certificatePinCode || "N/A"}
+                      </p>
+                      <p>
+                        <strong>City:</strong>{" "}
+                        {selectedDonation.certificateDetails?.certificateCity || "N/A"}
+                      </p>
+                      <p>
+                        <strong>State:</strong>{" "}
+                        {selectedDonation.certificateDetails?.certificateState || "N/A"}
+                      </p>
+                      <p>
+                        <strong>Preference State:</strong>{" "}
+                        {selectedDonation.certificateDetails?.preferenceState || "N/A"}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setSelectedDonation(null)}
+              >
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </Sidebar>
   );

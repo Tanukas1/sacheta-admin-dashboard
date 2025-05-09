@@ -1,15 +1,25 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Sidebar from "../../layout/Sidebar";
 import { DataTable } from "../../utils/Datatable";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const Donations = () => {
   const [donations, setDonations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const [selectedDonation, setSelectedDonation] = useState(null);
 
   useEffect(() => {
     fetchDonations();
@@ -21,12 +31,10 @@ const Donations = () => {
       const response = await axios.get(
         "https://sucheta.traficoanalytica.com/api/v1/enquiry/get-dedicate-donations"
       );
-
       const donationData = response?.data?.data;
       if (!Array.isArray(donationData)) {
         throw new Error("Invalid data format received from API");
       }
-
       setDonations(donationData);
     } catch (err) {
       setError(err.message || "Failed to fetch donations");
@@ -34,117 +42,52 @@ const Donations = () => {
       setIsLoading(false);
     }
   };
-  const handleDeleteDonation = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this donation?"
-    );
-    if (!confirmDelete) return;
-  
-    console.log(`Attempting to delete donation with ID: ${id}`);
+
+  const handleDeleteDonation = async () => {
     try {
       await axios.post(
         `https://sucheta.traficoanalytica.com/api/v1/enquiry/delete-dedicate-donation`,
-        { id } 
+        { id: deleteId }
       );
-  
-      setDonations((prev) => prev.filter((d) => d._id !== id));
-      console.log(`Donation ${id} deleted successfully`);
+      setDonations((prev) => prev.filter((d) => d._id !== deleteId));
+      setShowDeleteConfirm(false);
+      setDeleteId(null);
     } catch (err) {
-      console.error(`Failed to delete donation ${id}:`, err);
+      console.error(`Failed to delete donation ${deleteId}:`, err);
       alert("Failed to delete donation. Please try again.");
     }
   };
 
-  const renderCertificateField = (field, row) => {
-    return row.original.wants80GCertificate
-      ? row.original.certificateDetails?.[field] || ""
-      : null;
-  };
-
   const columns = [
     { accessorKey: "fullName", header: "Name" },
-    { accessorKey: "mobileNumber", header: "Mobile" },
-    { accessorKey: "alternateMobileNumber", header: "Alt. Mobile" },
     { accessorKey: "email", header: "Email" },
+    { accessorKey: "mobileNumber", header: "Mobile" },
+    { accessorKey: "donationType", header: "Donation Type" },
     { accessorKey: "birthdate", header: "Birthdate" },
     { accessorKey: "citizenship", header: "Citizenship" },
-    { accessorKey: "donationType", header: "Donation Type" },
-    {
-      accessorKey: "createdAt",
-      header: "Created At",
-      cell: (info) => {
-        const value = info.getValue();
-        return value ? new Date(value).toLocaleDateString() : "";
-      },
-    },
-    // { accessorKey: "panNumber", header: "PAN Number" },
-    // { accessorKey: "address", header: "Address" },
-    // { accessorKey: "pinCode", header: "Pincode" },
-
-    // Certificate Fields
-    {
-      accessorKey: "certificateDetails.panCardNumber",
-      header: "Certificate PAN",
-      cell: ({ row }) => renderCertificateField("panCardNumber", row),
-    },
-    {
-      accessorKey: "certificateDetails.certificateAddress",
-      header: "Certificate Address",
-      cell: ({ row }) => renderCertificateField("certificateAddress", row),
-    },
-    {
-      accessorKey: "certificateDetails.certificatePinCode",
-      header: "Certificate Pincode",
-      cell: ({ row }) => renderCertificateField("certificatePinCode", row),
-    },
-    {
-      accessorKey: "certificateDetails.certificateCity",
-      header: "Certificate City",
-      cell: ({ row }) => renderCertificateField("certificateCity", row),
-    },
-    {
-      accessorKey: "certificateDetails.certificateState",
-      header: "Certificate State",
-      cell: ({ row }) => renderCertificateField("certificateState", row),
-    },
-    {
-      accessorKey: "certificateDetails.preferenceState",
-      header: "Preference State",
-      cell: ({ row }) => renderCertificateField("preferenceState", row),
-    },
-
-    {
-      accessorKey: "amount",
-      header: "Amount",
-      cell: (info) => (info.getValue() ? `₹${info.getValue()}` : ""),
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ getValue }) => {
-        const status = getValue();
-        if (!status) return null;
-        const statusClass =
-          status === "completed"
-            ? "bg-green-100 text-green-800"
-            : status === "failed"
-            ? "bg-red-100 text-red-800"
-            : "bg-yellow-100 text-yellow-800";
-
-        return <Badge className={statusClass}>{status}</Badge>;
-      },
-    },
     {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={() => handleDeleteDonation(row.original._id)}
-        >
-          Delete
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSelectedDonation(row.original)}
+          >
+            View
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => {
+              setDeleteId(row.original._id);
+              setShowDeleteConfirm(true);
+            }}
+          >
+            Delete
+          </Button>
+        </div>
       ),
     },
   ];
@@ -167,6 +110,143 @@ const Donations = () => {
         ) : (
           <DataTable columns={columns} data={donations} />
         )}
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Deletion</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete this donation? This action cannot
+                be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteConfirm(false)}
+              >
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleDeleteDonation}>
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* View Donation Details Modal */}
+        <Dialog
+          open={!!selectedDonation}
+          onOpenChange={() => setSelectedDonation(null)}
+        >
+          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">Donation Details</DialogTitle>
+            </DialogHeader>
+            {selectedDonation && (
+              <div className="space-y-6">
+                <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                  <h3 className="text-lg font-semibold mb-3">Personal Information</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <p>
+                      <strong>Name:</strong> {selectedDonation.fullName}
+                    </p>
+                    <p>
+                      <strong>Email:</strong> {selectedDonation.email}
+                    </p>
+                    <p>
+                      <strong>Mobile:</strong> {selectedDonation.mobileNumber}
+                    </p>
+                    <p>
+                      <strong>Alt. Mobile:</strong>{" "}
+                      {selectedDonation.alternateMobileNumber || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Birthdate:</strong> {selectedDonation.birthdate || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Citizenship:</strong> {selectedDonation.citizenship || "N/A"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                  <h3 className="text-lg font-semibold mb-3">Donation Information</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <p>
+                      <strong>Donation Type:</strong>{" "}
+                      {selectedDonation.donationType}
+                    </p>
+                    <p>
+                      <strong>Amount:</strong> ₹{selectedDonation.amount}
+                    </p>
+                    <p>
+                      <strong>Status:</strong>{" "}
+                      <Badge
+                        className={
+                          selectedDonation.status === "completed"
+                            ? "bg-green-100 text-green-800"
+                            : selectedDonation.status === "failed"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }
+                      >
+                        {selectedDonation.status}
+                      </Badge>
+                    </p>
+                    <p>
+                      <strong>Created At:</strong>{" "}
+                      {selectedDonation.createdAt
+                        ? new Date(selectedDonation.createdAt).toLocaleDateString()
+                        : "N/A"}
+                    </p>
+                  </div>
+                </div>
+
+                {selectedDonation.wants80GCertificate && (
+                  <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <h3 className="text-lg font-semibold mb-3">Certificate Details</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <p>
+                        <strong>PAN Number:</strong>{" "}
+                        {selectedDonation.certificateDetails?.panCardNumber || "N/A"}
+                      </p>
+                      <p>
+                        <strong>Address:</strong>{" "}
+                        {selectedDonation.certificateDetails?.certificateAddress || "N/A"}
+                      </p>
+                      <p>
+                        <strong>Pincode:</strong>{" "}
+                        {selectedDonation.certificateDetails?.certificatePinCode || "N/A"}
+                      </p>
+                      <p>
+                        <strong>City:</strong>{" "}
+                        {selectedDonation.certificateDetails?.certificateCity || "N/A"}
+                      </p>
+                      <p>
+                        <strong>State:</strong>{" "}
+                        {selectedDonation.certificateDetails?.certificateState || "N/A"}
+                      </p>
+                      <p>
+                        <strong>Preference State:</strong>{" "}
+                        {selectedDonation.certificateDetails?.preferenceState || "N/A"}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setSelectedDonation(null)}
+              >
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </Sidebar>
   );

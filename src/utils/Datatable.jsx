@@ -47,20 +47,20 @@ export function DataTable({ columns, data }) {
   return (
     <div>
       <div className="flex items-center ">
-        <Input
+        {/* <Input
           placeholder="Filter titles..."
           value={table.getColumn("title")?.getFilterValue() ?? ""}
           onChange={(event) =>
             table.getColumn("title")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
-        />
+        /> */}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            {/* <Button variant="outline" className="ml-auto">
               Columns
-            </Button>
+            </Button> */}
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {table
